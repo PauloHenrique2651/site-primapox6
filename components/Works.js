@@ -1,6 +1,6 @@
 "use client";
 import { useRef } from "react";
-import { gsap, useIsoLayoutEffect, prefersReducedMotion } from "@/lib/gsap";
+import { gsap, useIsoLayoutEffect } from "@/lib/gsap";
 import { obras, aplicacoes } from "@/lib/content";
 
 const img = (n) => `/img/foto-${String(n).padStart(2, "0")}.webp`;
@@ -21,7 +21,6 @@ function Layer({ name, items }) {
 export default function Works() {
   const root = useRef(null);
   useIsoLayoutEffect(() => {
-    if (prefersReducedMotion()) return;
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         scrollTrigger: { trigger: root.current, start: "top top", end: "+=220%", scrub: 0.9, pin: true },

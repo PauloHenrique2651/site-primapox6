@@ -1,6 +1,6 @@
 "use client";
 import { useRef } from "react";
-import { gsap, ScrollTrigger, useIsoLayoutEffect, prefersReducedMotion } from "@/lib/gsap";
+import { gsap, ScrollTrigger, useIsoLayoutEffect } from "@/lib/gsap";
 import { anel, contato } from "@/lib/content";
 
 const img = (n) => `/img/foto-${String(n).padStart(2, "0")}.webp`;
@@ -21,10 +21,6 @@ export default function Finale() {
           gsap.set(el, { x: W / 2 + Math.cos(ang) * RX * orbit.r - el.offsetWidth / 2, y: H / 2 + Math.sin(ang) * RY * orbit.r - el.offsetHeight / 2, rotation: Math.cos(ang) * 6 });
         });
       };
-      if (prefersReducedMotion()) {
-        orbit.r = 1; orbit.a = 0.5; place();
-        return;
-      }
       place();
       ScrollTrigger.create({ trigger: root.current, start: "top top", end: "+=150%", pin: true, onRefresh: place });
       // animation starts while the section is still coming into view, so it never shows an empty screen

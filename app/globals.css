@@ -125,9 +125,7 @@ a, button { -webkit-tap-highlight-color: transparent; touch-action: manipulation
 .hero { height: 100vh; height: 100svh; position: relative; overflow: hidden; }
 .hero-stage { position: absolute; inset: 0; }
 .powder { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
-@media (prefers-reduced-motion: no-preference) {
-  .js .hero-logo img { opacity: 0; visibility: hidden; }
-}
+.js .hero-logo img { opacity: 0; visibility: hidden; }
 .hero-center {
   position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 22px; padding: 0 var(--gutter); text-align: center; z-index: 4; padding-bottom: 4vh;
@@ -146,6 +144,7 @@ a, button { -webkit-tap-highlight-color: transparent; touch-action: manipulation
   color: var(--muted);
 }
 .hero-cue span { width: 2px; height: 40px; background: linear-gradient(var(--red), transparent); animation: cue 1.6s ease-in-out infinite; transform-origin: top; }
+@media (prefers-reduced-motion: reduce) { .hero-cue span { animation: none; } }
 @keyframes cue { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
 
 /* ---------- about ---------- */

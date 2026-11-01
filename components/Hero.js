@@ -45,7 +45,7 @@ export default function Hero() {
   const canvasRef = useRef(null);
 
   useIsoLayoutEffect(() => {
-    if (prefersReducedMotion()) return;
+    const calm = prefersReducedMotion();
     const stage = root.current.querySelector(".hero-stage");
     const logo = root.current.querySelector(".hero-logo");
     const logoImg = logo.querySelector("img");
@@ -117,7 +117,7 @@ export default function Hero() {
         const q = parts[i];
         // each grain starts its trip at its own moment, so the logo builds up grain by grain
         const e = easeInOut(clamp01((form - q.delay * 0.55) / 0.45));
-        const drift = 1 - e;
+        const drift = calm ? 0 : 1 - e;
         const fx = Math.sin(t * q.speed + q.phase) * 14 * drift;
         const fy = Math.cos(t * q.speed * 0.8 + q.phase) * 10 * drift;
         const arc = Math.sin(e * Math.PI) * q.swirl;

@@ -1,6 +1,6 @@
 "use client";
 import { useRef } from "react";
-import { gsap, useIsoLayoutEffect, prefersReducedMotion } from "@/lib/gsap";
+import { gsap, useIsoLayoutEffect } from "@/lib/gsap";
 import { coresLinha1, coresLinha2 } from "@/lib/content";
 
 const img = (n) => `/img/foto-${String(n).padStart(2, "0")}.webp`;
@@ -9,7 +9,6 @@ const WORD_COLORS = ["#c90d15", "#15873a", "#b37400", "#1673b0", "#0b2a8f", "#c9
 export default function Colors() {
   const root = useRef(null);
   useIsoLayoutEffect(() => {
-    if (prefersReducedMotion()) return;
     const ctx = gsap.context(() => {
       const r1 = root.current.querySelector(".crow.r1");
       const r2 = root.current.querySelector(".crow.r2");

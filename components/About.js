@@ -1,12 +1,11 @@
 "use client";
 import { useRef } from "react";
-import { gsap, useIsoLayoutEffect, prefersReducedMotion } from "@/lib/gsap";
+import { gsap, useIsoLayoutEffect } from "@/lib/gsap";
 import { quemSomos } from "@/lib/content";
 
 export default function About() {
   const root = useRef(null);
   useIsoLayoutEffect(() => {
-    if (prefersReducedMotion()) return;
     const ctx = gsap.context(() => {
       gsap.fromTo(".about-photo.a", { yPercent: 12, rotation: -4 }, { yPercent: -10, rotation: -1, ease: "none", scrollTrigger: { trigger: root.current, start: "top bottom", end: "bottom top", scrub: true } });
       gsap.fromTo(".about-photo.b", { yPercent: 30, rotation: 6 }, { yPercent: -25, rotation: 2, ease: "none", scrollTrigger: { trigger: root.current, start: "top bottom", end: "bottom top", scrub: true } });

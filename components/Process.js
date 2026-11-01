@@ -1,6 +1,6 @@
 "use client";
 import { useRef } from "react";
-import { gsap, useIsoLayoutEffect, prefersReducedMotion } from "@/lib/gsap";
+import { gsap, useIsoLayoutEffect } from "@/lib/gsap";
 import { processo } from "@/lib/content";
 
 const ROTS = [-3, 2.5, -2, 3, -2.5, 1.5];
@@ -10,7 +10,6 @@ export default function Process() {
   const cards = processo.flatMap((s) => s.fotos);
 
   useIsoLayoutEffect(() => {
-    if (prefersReducedMotion()) return;
     const ctx = gsap.context(() => {
       const els = gsap.utils.toArray(".deck .card");
       const steps = gsap.utils.toArray(".pstep");
