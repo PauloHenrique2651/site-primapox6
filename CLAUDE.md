@@ -19,7 +19,7 @@ npm run build && npm start   # produção
 ## Onde está cada coisa
 - `lib/content.js` — TODOS os textos (copiados de primapox.com: A Primapox, Serviços, Fale Conosco). Edite aqui.
 - `components/` — uma seção por arquivo, na ordem do roteiro:
-  1. `Hero` — pó colorido atraído até o logo (intro automática) → ao rolar o logo sai e o pó explode → "Se é metal, Primapox pinta e protege!"
+  1. `Hero` — canvas de partículas guiado pelo scroll: nuvem de pó flutuando (reage ao mouse) → ao rolar o pó forma o logo (pontos amostrados dos pixels do próprio `logo.png`) → logo nítido → logo explode em pó → "Se é metal, Primapox pinta e protege!". Faixas do scroll nas constantes `FORM`/`SOLID`/`BURST`.
   2. `About` — Quem Somos
   3. `Process` — deck de fotos indo e voltando + etapas 01/02/03 (fixado)
   4. `ProcessDetail` — Serviços: textos completos de cada etapa

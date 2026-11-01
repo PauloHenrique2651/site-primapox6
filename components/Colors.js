@@ -46,12 +46,12 @@ export default function Colors() {
       <div className="crows" aria-hidden="true">
         <div className="crow r1">
           {coresLinha1.map((n) => (
-            <figure key={n} className="card"><img src={img(n)} alt="" /></figure>
+            <figure key={n} className="card"><img src={img(n)} alt="" decoding="async" /></figure>
           ))}
         </div>
         <div className="crow r2">
           {coresLinha2.map((n) => (
-            <figure key={n} className="card"><img src={img(n)} alt="" /></figure>
+            <figure key={n} className="card"><img src={img(n)} alt="" decoding="async" /></figure>
           ))}
         </div>
       </div>

@@ -10,7 +10,7 @@ function Layer({ name, items }) {
     <div className={`wlayer ${name}`}>
       {items.map((c) => (
         <figure key={c.n} className="card" style={{ left: `${c.x}%`, top: `${c.y}%`, width: `${c.w}%` }}>
-          <img src={img(c.n)} alt="" />
+          <img src={img(c.n)} alt="" decoding="async" />
           {c.cap && <figcaption className="cap">{c.cap}</figcaption>}
         </figure>
       ))}

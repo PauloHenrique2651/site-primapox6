@@ -46,7 +46,7 @@ export default function Finale() {
     <section className="finale" ref={root}>
       <div className="ring" aria-hidden="true">
         {anel.map((n, i) => (
-          <figure key={i} className="card"><img src={img(n)} alt="" /></figure>
+          <figure key={i} className="card"><img src={img(n)} alt="" decoding="async" /></figure>
         ))}
       </div>
       <div className="fin-center">

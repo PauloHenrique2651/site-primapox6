@@ -71,7 +71,7 @@ export default function Process() {
         <div className="deck" aria-hidden="true">
           {cards.map((c, i) => (
             <figure key={i} className="card" style={{ zIndex: 10 + i }}>
-              <img src={c.src} alt="" />
+              <img src={c.src} alt="" decoding="async" />
               <figcaption className="cap">{c.cap}</figcaption>
             </figure>
           ))}

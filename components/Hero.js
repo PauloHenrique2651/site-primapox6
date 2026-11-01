@@ -1,114 +1,224 @@
 "use client";
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 import { gsap, useIsoLayoutEffect, mulberry32, POWDER, prefersReducedMotion } from "@/lib/gsap";
 
-function makeDots(seed, count) {
-  const rnd = mulberry32(seed);
-  return Array.from({ length: count }, () => {
-    const s = 5 + Math.pow(rnd(), 2) * 16;
-    const a = rnd() * Math.PI * 2;
-    const r = Math.sqrt(rnd());
-    return {
-      left: 2 + rnd() * 96,
-      top: 3 + rnd() * 94,
-      size: +s.toFixed(1),
-      color: POWDER[Math.floor(rnd() * POWDER.length)],
-      tx: Math.cos(a) * r, // inside logo ellipse (-1..1)
-      ty: Math.sin(a) * r,
-      delay: rnd() * 0.45,
-      ang: rnd() * Math.PI * 2,
-      dist: 0.55 + rnd() * 0.75,
-    };
-  });
+// Scroll map of the pinned hero (timeline progress 0..1)
+const FORM = [0.02, 0.44]; // powder is attracted and builds the logo
+const SOLID = [0.4, 0.47]; // particles hand over to the crisp logo image
+const BURST = [0.6, 1]; // logo breaks back into powder and blows outward
+
+const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+const range = (p, [a, b]) => clamp01((p - a) / (b - a));
+const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+
+// Reads the logo's own pixels so the powder lands on its real shape and colours.
+function sampleLogo(img, width, count) {
+  const height = Math.round((width * img.naturalHeight) / img.naturalWidth);
+  const c = document.createElement("canvas");
+  c.width = width;
+  c.height = height;
+  const g = c.getContext("2d", { willReadFrequently: true });
+  g.drawImage(img, 0, 0, width, height);
+  const data = g.getImageData(0, 0, width, height).data;
+  let opaque = 0;
+  for (let i = 3; i < data.length; i += 4) if (data[i] > 140) opaque++;
+  const step = Math.max(2, Math.sqrt(opaque / count));
+  const rnd = mulberry32(41);
+  const pts = [];
+  for (let y = step / 2; y < height; y += step) {
+    for (let x = step / 2; x < width; x += step) {
+      const k = (Math.floor(y) * width + Math.floor(x)) * 4;
+      if (data[k + 3] < 140) continue;
+      const rgb = [data[k], data[k + 1], data[k + 2]];
+      // the white cloud is mostly background: keep it sparse so the red and blue read first
+      if (rgb[0] > 225 && rgb[1] > 225 && rgb[2] > 225 && rnd() > 0.45) continue;
+      pts.push({ x: x - width / 2, y: y - height / 2, rgb });
+    }
+  }
+  return { pts, step, height };
 }
 
 export default function Hero() {
   const root = useRef(null);
-  const dots = useMemo(() => makeDots(1985, 150), []);
-  const burst = useMemo(() => makeDots(2026, 70), []);
+  const canvasRef = useRef(null);
 
   useIsoLayoutEffect(() => {
-    const reduce = prefersReducedMotion();
-    const ctx = gsap.context(() => {
-      const stage = root.current.querySelector(".hero-stage");
-      const logo = root.current.querySelector(".hero-logo");
-      const els = gsap.utils.toArray(".dot");
+    if (prefersReducedMotion()) return;
+    const stage = root.current.querySelector(".hero-stage");
+    const logo = root.current.querySelector(".hero-logo");
+    const logoImg = logo.querySelector("img");
+    const canvas = canvasRef.current;
+    const ctx2d = canvas.getContext("2d");
+    const powder = POWDER.map(hex);
+    const mouse = { x: -9999, y: -9999, on: false };
+    let parts = [];
+    let W = 0, H = 0, dpr = 1, born = 0, raf = 0, visible = true;
+    let tl;
 
-      if (reduce) {
-        gsap.set(els, { autoAlpha: 0 });
-        return;
+    const build = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = stage.clientWidth;
+      H = stage.clientHeight;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width = W + "px";
+      canvas.style.height = H + "px";
+      const r = logo.getBoundingClientRect();
+      const s = stage.getBoundingClientRect();
+      const cx = r.left - s.left + r.width / 2;
+      const cy = r.top - s.top + r.height / 2;
+      const count = W < 700 ? 900 : W < 1200 ? 1500 : 2100;
+      const { pts, step } = sampleLogo(logoImg, Math.round(r.width), count);
+      const rnd = mulberry32(1985);
+      // gaussian sample, so the resting powder gathers in a soft cloud instead of even confetti
+      const gauss = () => (rnd() + rnd() + rnd() - 1.5) / 1.5;
+      parts = pts.map((t) => {
+        const ang = Math.atan2(t.y, t.x) + (rnd() - 0.5) * 1.2;
+        const loose = rnd() < 0.3;
+        return {
+          hx: loose ? rnd() * W : cx + gauss() * W * 0.55,
+          hy: loose ? rnd() * H : cy + gauss() * H * 0.5,
+          tx: cx + t.x,
+          ty: cy + t.y,
+          trgb: t.rgb,
+          prgb: powder[Math.floor(rnd() * powder.length)],
+          size: 1.6 + Math.pow(rnd(), 2.2) * 5,
+          tsize: step * 0.62,
+          delay: rnd(),
+          swirl: (rnd() - 0.5) * 0.9,
+          phase: rnd() * Math.PI * 2,
+          speed: 0.4 + rnd() * 0.8,
+          bx: Math.cos(ang) * (0.35 + rnd() * 0.9) * W * 0.75,
+          by: Math.sin(ang) * (0.35 + rnd() * 0.9) * H * 0.75 - rnd() * H * 0.15,
+          ox: 0,
+          oy: 0,
+        };
+      });
+    };
+
+    const draw = (now) => {
+      raf = requestAnimationFrame(draw);
+      if (!visible) return;
+      const p = tl ? tl.progress() : 0;
+      const t = now / 1000;
+      const appear = clamp01((now - born) / 1400);
+      const solid = range(p, SOLID);
+      const burst = range(p, BURST);
+      // particles hide while the real logo is on screen, and return when it breaks
+      const handoff = burst > 0 ? 1 : 1 - solid;
+      ctx2d.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx2d.clearRect(0, 0, W, H);
+      if (handoff <= 0.001) return;
+      const form = range(p, FORM);
+      const be = easeOut(burst);
+      for (let i = 0; i < parts.length; i++) {
+        const q = parts[i];
+        // each grain starts its trip at its own moment, so the logo builds up grain by grain
+        const e = easeInOut(clamp01((form - q.delay * 0.55) / 0.45));
+        const drift = 1 - e;
+        const fx = Math.sin(t * q.speed + q.phase) * 14 * drift;
+        const fy = Math.cos(t * q.speed * 0.8 + q.phase) * 10 * drift;
+        const arc = Math.sin(e * Math.PI) * q.swirl;
+        let x = q.hx + (q.tx - q.hx) * e - (q.ty - q.hy) * arc + fx;
+        let y = q.hy + (q.ty - q.hy) * e + (q.tx - q.hx) * arc + fy;
+        if (be > 0) {
+          x += q.bx * be;
+          y += q.by * be + be * be * 120;
+        }
+        // loose powder is pushed by the cursor, like a hand passing through the spray
+        if (mouse.on && drift > 0.05) {
+          const dx = x + q.ox - mouse.x, dy = y + q.oy - mouse.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < 22000) {
+            const f = (1 - d2 / 22000) * 6 * drift;
+            const d = Math.sqrt(d2) || 1;
+            q.ox += (dx / d) * f;
+            q.oy += (dy / d) * f;
+          }
+        }
+        q.ox *= 0.93;
+        q.oy *= 0.93;
+        x += q.ox;
+        y += q.oy;
+        const c = clamp01(e * 1.4 - 0.3);
+        const r = q.prgb[0] + (q.trgb[0] - q.prgb[0]) * c;
+        const g = q.prgb[1] + (q.trgb[1] - q.prgb[1]) * c;
+        const b = q.prgb[2] + (q.trgb[2] - q.prgb[2]) * c;
+        const size = (q.size + (q.tsize - q.size) * e) * (1 + be * 0.6);
+        const a = appear * handoff * (1 - burst * burst) * (0.55 + 0.45 * e);
+        if (a <= 0.01) continue;
+        ctx2d.globalAlpha = a;
+        ctx2d.fillStyle = `rgb(${r | 0},${g | 0},${b | 0})`;
+        ctx2d.beginPath();
+        ctx2d.arc(x, y, size, 0, 6.2832);
+        ctx2d.fill();
       }
+      ctx2d.globalAlpha = 1;
+    };
 
-      // ---------- intro: electrostatic attraction (plays on load) ----------
-      const intro = gsap.timeline({ delay: 0.15 });
-      const W = () => stage.clientWidth;
-      const H = () => stage.clientHeight;
-      const lb = () => {
-        const r = logo.getBoundingClientRect();
-        const s = stage.getBoundingClientRect();
-        return { cx: r.left - s.left + r.width / 2, cy: r.top - s.top + r.height / 2, rx: r.width * 0.42, ry: r.height * 0.36 };
-      };
-      const box = lb();
-      gsap.set(".hero-logo img", { autoAlpha: 0, scale: 0.55, rotation: -4 });
-      gsap.set([".hero-sub", ".hero-chip", ".hero-cue"], { autoAlpha: 0, y: 24 });
-      els.forEach((el, i) => {
-        const d = dots[i];
-        const hx = (d.left / 100) * W();
-        const hy = (d.top / 100) * H();
-        intro.to(el, { x: (Math.random() - 0.5) * 40, y: (Math.random() - 0.5) * 40, duration: 0.5, ease: "sine.inOut" }, 0);
-        intro.to(el, { x: box.cx + d.tx * box.rx - hx, y: box.cy + d.ty * box.ry - hy, duration: 0.95, ease: "power3.in" }, 0.35 + d.delay);
-        intro.to(el, { scale: 0, autoAlpha: 0, duration: 0.22, ease: "power2.in" }, 1.25 + d.delay * 0.4);
-      });
-      intro.to(".hero-logo img", { autoAlpha: 1, duration: 0.2 }, 1.22);
-      intro.to(".hero-logo img", { scale: 1, rotation: 0, duration: 0.9, ease: "elastic.out(1, 0.55)" }, 1.22);
-      intro.to(".hero-sub", { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out" }, 1.6);
-      intro.to(".hero-chip", { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out" }, 1.75);
-      intro.to(".hero-cue", { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out" }, 2.1);
+    const onMove = (e) => {
+      const s = stage.getBoundingClientRect();
+      mouse.x = e.clientX - s.left;
+      mouse.y = e.clientY - s.top;
+      mouse.on = true;
+    };
+    const onLeave = () => (mouse.on = false);
 
-      // ---------- scroll: logo leaves, powder bursts outward ----------
-      const st = gsap.timeline({
-        scrollTrigger: { trigger: root.current, start: "top top", end: "+=120%", scrub: 0.8, pin: true },
+    const gctx = gsap.context(() => {
+      gsap.set(logoImg, { autoAlpha: 0, scale: 0.97 });
+      tl = gsap.timeline({
+        defaults: { ease: "none" },
+        scrollTrigger: {
+          trigger: root.current, start: "top top", end: "+=240%", scrub: 0.7, pin: true,
+          onRefresh: () => logoImg.complete && build(),
+          onToggle: (self) => (visible = self.isActive || self.progress < 1),
+        },
       });
-      st.to(".hero-cue", { autoAlpha: 0, duration: 0.1 }, 0);
-      st.to([".hero-sub", ".hero-chip"], { autoAlpha: 0, y: -40, stagger: 0.04, duration: 0.3 }, 0.02);
-      st.to(logo, { scale: 0.32, yPercent: -260, autoAlpha: 0, duration: 0.6, ease: "power2.in" }, 0.15);
-      gsap.utils.toArray(".bdot").forEach((el, i) => {
-        const b = burst[i];
-        const dx = Math.cos(b.ang) * b.dist * W() * 0.6;
-        const dy = Math.sin(b.ang) * b.dist * H() * 0.6;
-        st.fromTo(el, { x: 0, y: 0, scale: 0, autoAlpha: 0 }, { x: dx, y: dy, scale: 1.4, autoAlpha: 1, duration: 0.55, ease: "power3.out" }, 0.25 + b.delay * 0.2);
-        st.to(el, { autoAlpha: 0, duration: 0.2 }, 0.8);
-      });
-      st.fromTo(".hero-next", { autoAlpha: 0, y: 60 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: "power3.out" }, 0.55);
+      tl.to(".hero-cue", { autoAlpha: 0, y: 12, duration: 0.05 }, 0.01);
+      tl.to(logoImg, { autoAlpha: 1, scale: 1, duration: SOLID[1] - SOLID[0], ease: "power2.out" }, SOLID[0]);
+      tl.to([".hero-sub", ".hero-chip"], { autoAlpha: 0, y: -30, stagger: 0.02, duration: 0.08 }, BURST[0] - 0.04);
+      tl.to(logoImg, { autoAlpha: 0, scale: 1.04, duration: 0.03 }, BURST[0]);
+      tl.fromTo(".hero-next", { autoAlpha: 0, y: 50 }, { autoAlpha: 1, y: 0, duration: 0.16, ease: "power3.out" }, 0.72);
+      tl.to({}, { duration: 0.08 }, 0.92); // hold the closing line before the page moves on
     }, root);
-    return () => ctx.revert();
-  }, [dots, burst]);
+
+    const start = () => {
+      build();
+      born = performance.now();
+      raf = requestAnimationFrame(draw);
+    };
+    if (logoImg.complete && logoImg.naturalWidth) start();
+    else logoImg.addEventListener("load", start, { once: true });
+    stage.addEventListener("pointermove", onMove);
+    stage.addEventListener("pointerleave", onLeave);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      logoImg.removeEventListener("load", start);
+      stage.removeEventListener("pointermove", onMove);
+      stage.removeEventListener("pointerleave", onLeave);
+      gctx.revert();
+    };
+  }, []);
 
   return (
     <section id="hero" className="hero" ref={root}>
       <div className="hero-stage">
-        <div className="particles" aria-hidden="true">
-          {dots.map((d, i) => (
-            <span key={i} className="dot" style={{ left: `${d.left}%`, top: `${d.top}%`, width: d.size, height: d.size, marginLeft: -d.size / 2, marginTop: -d.size / 2, background: d.color }} />
-          ))}
-        </div>
-        <div className="burst" aria-hidden="true">
-          {burst.map((d, i) => (
-            <span key={i} className="bdot" style={{ width: d.size, height: d.size, marginLeft: -d.size / 2, marginTop: -d.size / 2, background: d.color }} />
-          ))}
-        </div>
+        <canvas ref={canvasRef} className="powder" aria-hidden="true" />
         <div className="hero-center">
           <h1 className="hero-logo">
             <img src="/img/logo.png" alt="Primapox" width="1152" height="468" />
           </h1>
           <p className="hero-sub">Pintura eletrostática com tinta em pó</p>
-          <span className="chip hero-chip"><i style={{ background: "var(--red)" }} />desde 1985 · Rio de Janeiro</span>
+          <span className="chip hero-chip"><i style={{ background: "var(--red)" }} />Desde 1985, no Rio de Janeiro</span>
         </div>
         <div className="hero-next">
-          <p className="eyebrow">Se é metal,</p>
+          <p className="hero-next-lead">Se é metal,</p>
           <p className="display">Primapox pinta<br />e protege!</p>
         </div>
-        <div className="hero-cue" aria-hidden="true"><span />Role para descobrir</div>
+        <div className="hero-cue" aria-hidden="true"><span />Role para pintar</div>
       </div>
     </section>
   );

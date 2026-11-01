@@ -13,6 +13,8 @@ export default function SmoothScroll({ children }) {
       onEnter: (els) => gsap.to(els, { autoAlpha: 1, y: 0, duration: 0.9, ease: "power3.out", stagger: 0.08, overwrite: true }),
     });
     ScrollTrigger.refresh();
+    // pin lengths depend on text height: measure again once the web font has swapped in
+    document.fonts?.ready.then(() => ScrollTrigger.refresh());
     if (prefersReducedMotion()) return () => reveals.forEach((t) => t.kill());
     const lenis = new Lenis({ duration: 1.15, smoothWheel: true });
     lenis.on("scroll", ScrollTrigger.update);

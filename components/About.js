@@ -27,8 +27,8 @@ export default function About() {
           </div>
         </div>
         <div className="about-photos" aria-hidden="true">
-          <figure className="card about-photo a"><img src="/img/foto-25.webp" alt="" /></figure>
-          <figure className="card about-photo b"><img src="/img/foto-11.webp" alt="" /></figure>
+          <figure className="card about-photo a"><img src="/img/foto-25.webp" alt="" loading="lazy" decoding="async" /></figure>
+          <figure className="card about-photo b"><img src="/img/foto-11.webp" alt="" loading="lazy" decoding="async" /></figure>
         </div>
       </div>
     </section>
