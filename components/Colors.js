@@ -1,7 +1,7 @@
 "use client";
 import { useRef } from "react";
 import { gsap, useIsoLayoutEffect } from "@/lib/gsap";
-import { coresLinha1, coresLinha2 } from "@/lib/content";
+import { coresLinha1, coresLinha2, destaque } from "@/lib/content";
 
 const img = (n) => `/img/foto-${String(n).padStart(2, "0")}.webp`;
 const WORD_COLORS = ["#c90d15", "#15873a", "#b37400", "#1673b0", "#0b2a8f", "#c90d15"];
@@ -31,16 +31,11 @@ export default function Colors() {
   }, []);
 
   return (
-    <section id="cores" className="colors" ref={root}>
+    <section className="colors" ref={root}>
       <div className="wrap colors-head">
-        <div className="reveal">
-          <p className="eyebrow">Qualquer cor</p>
-          <h2 className="display">Qualquer <span className="cor-word">cor</span>.</h2>
-        </div>
-        <div className="colors-copy reveal">
-          <p className="colors-lead">Acabamento que dura.</p>
-          <p className="muted">As cores e os efeitos podem ser brilhante ou fosco. Tudo o que é usualmente fabricado em latão, cobre, alumínio e em chapa de ferro, pode ser executado através do processo Primapox.</p>
-        </div>
+        <h2 className="colors-title reveal">
+          {destaque.titulo.replace(/PINTA!$/, "")}<span className="cor-word">PINTA</span>!
+        </h2>
       </div>
       <div className="crows" aria-hidden="true">
         <div className="crow r1">

@@ -14,7 +14,7 @@ export default function About() {
   }, []);
 
   return (
-    <section id="quem-somos" className="section about" ref={root}>
+    <section id="a-primapox" className="section about" ref={root}>
       <div className="wrap about-grid">
         <div>
           <p className="eyebrow reveal">A Primapox</p>

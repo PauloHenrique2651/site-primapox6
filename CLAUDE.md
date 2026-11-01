@@ -17,29 +17,30 @@ npm run build && npm start   # produção
 - Fonte Archivo local (`public/fonts`), cores e tokens em `app/globals.css`
 
 ## Onde está cada coisa
-- `lib/content.js` — TODOS os textos (copiados de primapox.com: A Primapox, Serviços, Fale Conosco). Edite aqui.
-- `components/` — uma seção por arquivo, na ordem do roteiro:
-  1. `Hero` — canvas de partículas guiado pelo scroll: nuvem de pó flutuando (reage ao mouse) → ao rolar o pó forma o logo (pontos amostrados dos pixels do próprio `logo.png`) → logo nítido → logo explode em pó → "Se é metal, Primapox pinta e protege!". Faixas do scroll nas constantes `FORM`/`SOLID`/`BURST`.
-  2. `About` — Quem Somos
-  3. `Process` — deck de fotos indo e voltando + etapas 01/02/03 (fixado)
-  4. `ProcessDetail` — Serviços: textos completos de cada etapa
-  5. `Colors` — "Qualquer cor." com linhas de fotos indo e voltando (fixado)
-  6. `Benefits`, `PaintTypes` — benefícios, tipos de tinta e ficha técnica
-  7. `Works` — obras em parallax (fixado)
-  8. `Applications` — Material / aplicações
-  9. `Finale` — "41 anos dando cor ao metal" com anel de fotos girando (fixado)
-  10. `Contact`, `Footer`
-- `public/img` — 46 fotos da galeria + logo
+- `lib/content.js` — TODOS os textos, copiados de primapox.com página por página (Home, A Primapox, Serviços,
+  Manutenção, Galeria de Fotos, Fale Conosco, rodapé). Regra do cliente: só o texto original, sem acrescentar nada;
+  a única mudança foi corrigir os "?" (acentos em Windows-1252). Edite aqui.
+- `components/` — uma seção por arquivo, na ordem do menu do site antigo:
+  1. `Hero` (#home) — canvas guiado pelo scroll: pó flutuando → forma o logo (pontos tirados dos pixels de `logo.png`)
+     → logo explode → bloco "Nossos Serviços" da home. Faixas do scroll em `FORM`/`SOLID`/`BURST`.
+  2. `About` (#a-primapox) — Quem Somos
+  3. Serviços (#servicos), na ordem da página original: `Benefits`, `PaintTypes` (+ ficha técnica), `Colors`
+     (título "COM PRIMAPOX O METAL NÃO DÁ NA PINTA!", fixado), `Destaque`, `Works` (Material, fixado),
+     `Applications`, `Process` (Pré-tratamento/Pintura/Cura, fixado), `ProcessDetail` (textos + fotos Antes/Depois)
+  4. `Finale` — "Se é metal, Primapox pinta e protege!" com anel de fotos (fixado)
+  5. `Manutencao` (#manutencao), `Galeria` (#galeria, 46 fotos com ampliação), `Contact` (#fale-conosco), `Footer`
+- `public/img` — 46 fotos da galeria, `antes.jpg`/`depois.jpg` da página Serviços, logo
 - `video/` — projetos HyperFrames do vídeo (16:9 e 9:16) e o MP4 renderizado
+- Motion: as cenas guiadas pelo scroll rodam para todos (inclusive celular com "reduzir movimento");
+  essa preferência só desliga o que se move sozinho (deriva do pó, loop da dica, inércia do Lenis).
 
 ## Briefing (resumo)
 - Estilo claro e limpo: fundo #f5f4f0 com grade de pontos, texto grafite, vermelho do logo como destaque.
-- Mensagem final: "41 anos dando cor ao metal" · "Pintura eletrostática a pó desde 1985".
 - Fotos são pequenas (~480 px de altura): sempre em cartões, nunca em tela cheia.
 
 ## Pendências
-- Página "Manutenção" do site antigo não foi copiada (falta o texto).
-- "Quem Somos" diz "há mais de 20 anos" (texto antigo do site) e o resto do site diz 41 anos — confirmar com o cliente.
-- Endereço: a página de contato diz "Praça Itapitanga 10"; o rodapé antigo dizia "Praça 10, 42" e (21) 3172-2000. Usei os dados da página de contato.
-- Formulário de contato abre o e-mail (mailto). Para envio direto, criar uma rota `app/api/contato/route.js` com SMTP/Resend.
+- O texto original diz "há mais de 20 anos" (Quem Somos) — mantido como está, por pedido do cliente.
+- Rodapé copiado do site antigo: "Praça 10, 42" e (21) 3172-2000; a página de contato diz "Praça Itapitanga 10"
+  e (21) 3448-7320. Os dois estão no site como no original — confirmar com o cliente qual vale.
+- Formulário de contato abre o e-mail (mailto). Para envio direto, criar `app/api/contato/route.js` com SMTP/Resend.
 - Versão vertical do vídeo (video/hero916) está pronta mas não foi renderizada: `cd video/hero916 && npx hyperframes render`.

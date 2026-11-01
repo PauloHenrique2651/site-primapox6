@@ -11,7 +11,6 @@ function Layer({ name, items }) {
       {items.map((c) => (
         <figure key={c.n} className="card" style={{ left: `${c.x}%`, top: `${c.y}%`, width: `${c.w}%` }}>
           <img src={img(c.n)} alt="" decoding="async" />
-          {c.cap && <figcaption className="cap">{c.cap}</figcaption>}
         </figure>
       ))}
     </div>
@@ -36,7 +35,7 @@ export default function Works() {
   }, []);
 
   return (
-    <section id="obras" className="works" ref={root}>
+    <section className="works" ref={root}>
       <div className="wstage" aria-hidden="true">
         <Layer name="longe" items={obras.longe} />
         <Layer name="meio" items={obras.meio} />
@@ -44,11 +43,11 @@ export default function Works() {
       </div>
       <div className="wfade" aria-hidden="true" />
       <div className="wrap wtext">
-        <p className="eyebrow">Na sua obra</p>
-        <h2 className="display">Do galpão<br />à fachada.</h2>
+        <h2 className="display">{aplicacoes.titulo}</h2>
+        <p className="wintro">{aplicacoes.intro}</p>
         <div className="wchips">
           {aplicacoes.itens.map((a) => (
-            <span key={a.nome} className="chip"><i style={{ background: a.cor }} />{a.nome.replace("Na ", "")}</span>
+            <span key={a.nome} className="chip"><i style={{ background: a.cor }} />{a.nome}</span>
           ))}
         </div>
       </div>

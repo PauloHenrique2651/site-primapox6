@@ -1,6 +1,7 @@
 "use client";
 import { useRef } from "react";
 import { gsap, useIsoLayoutEffect, mulberry32, POWDER, prefersReducedMotion } from "@/lib/gsap";
+import { home } from "@/lib/content";
 
 // Scroll map of the pinned hero (timeline progress 0..1)
 const FORM = [0.02, 0.44]; // powder is attracted and builds the logo
@@ -178,9 +179,8 @@ export default function Hero() {
       });
       tl.to(".hero-cue", { autoAlpha: 0, y: 12, duration: 0.05 }, 0.01);
       tl.to(logoImg, { autoAlpha: 1, scale: 1, duration: SOLID[1] - SOLID[0], ease: "power2.out" }, SOLID[0]);
-      tl.to([".hero-sub", ".hero-chip"], { autoAlpha: 0, y: -30, stagger: 0.02, duration: 0.08 }, BURST[0] - 0.04);
       tl.to(logoImg, { autoAlpha: 0, scale: 1.04, duration: 0.03 }, BURST[0]);
-      tl.fromTo(".hero-next", { autoAlpha: 0, y: 50 }, { autoAlpha: 1, y: 0, duration: 0.16, ease: "power3.out" }, 0.72);
+      tl.fromTo(".hero-next > *", { autoAlpha: 0, y: 50 }, { autoAlpha: 1, y: 0, duration: 0.12, stagger: 0.03, ease: "power3.out" }, 0.7);
       tl.to({}, { duration: 0.08 }, 0.92); // hold the closing line before the page moves on
     }, root);
 
@@ -204,21 +204,25 @@ export default function Hero() {
   }, []);
 
   return (
-    <section id="hero" className="hero" ref={root}>
+    <section id="home" className="hero" ref={root}>
       <div className="hero-stage">
         <canvas ref={canvasRef} className="powder" aria-hidden="true" />
         <div className="hero-center">
           <h1 className="hero-logo">
             <img src="/img/logo.png" alt="Primapox" width="1152" height="468" />
           </h1>
-          <p className="hero-sub">Pintura eletrostática com tinta em pó</p>
-          <span className="chip hero-chip"><i style={{ background: "var(--red)" }} />Desde 1985, no Rio de Janeiro</span>
         </div>
-        <div className="hero-next">
-          <p className="hero-next-lead">Se é metal,</p>
-          <p className="display">Primapox pinta<br />e protege!</p>
+        <div className="hero-next wrap">
+          <h2 className="eyebrow">{home.servicosTitulo}</h2>
+          <p className="hero-next-text">{home.servicosTexto}</p>
+          <p className="hero-next-sub">{home.vantagensTitulo}</p>
+          <ul className="hero-vantagens">
+            {home.vantagens.map((v, i) => (
+              <li key={v} className="chip"><i style={{ background: POWDER[i * 2] }} />{v}</li>
+            ))}
+          </ul>
         </div>
-        <div className="hero-cue" aria-hidden="true"><span />Role para pintar</div>
+        <div className="hero-cue" aria-hidden="true"><span /></div>
       </div>
     </section>
   );

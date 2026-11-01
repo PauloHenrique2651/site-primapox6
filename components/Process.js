@@ -47,22 +47,14 @@ export default function Process() {
   }, []);
 
   return (
-    <section id="processo" className="process" ref={root}>
+    <section className="process" ref={root}>
       <div className="wrap process-grid">
         <div className="process-left">
-          <div className="process-head reveal">
-            <p className="eyebrow">O processo</p>
-            <h2 className="h2">Do metal bruto<br />à <span className="red">cor perfeita.</span></h2>
-          </div>
           <div className="pbar"><div className="pbar-fill" /></div>
           <ol className="psteps">
             {processo.map((s) => (
-              <li key={s.n} className="pstep">
-                <b>{s.n}</b>
-                <div>
-                  <h3>{s.nome}</h3>
-                  <p>{s.resumo}</p>
-                </div>
+              <li key={s.nome} className="pstep">
+                <h3>{s.nome}</h3>
               </li>
             ))}
           </ol>
@@ -70,8 +62,7 @@ export default function Process() {
         <div className="deck" aria-hidden="true">
           {cards.map((c, i) => (
             <figure key={i} className="card" style={{ zIndex: 10 + i }}>
-              <img src={c.src} alt="" decoding="async" />
-              <figcaption className="cap">{c.cap}</figcaption>
+              <img src={c} alt="" decoding="async" />
             </figure>
           ))}
         </div>

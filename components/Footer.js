@@ -1,4 +1,4 @@
-import { contato } from "@/lib/content";
+import { rodape } from "@/lib/content";
 
 export default function Footer() {
   return (
@@ -6,9 +6,9 @@ export default function Footer() {
       <div className="wrap ftr-in">
         <img src="/img/logo.png" alt="Primapox" className="ftr-logo" />
         <div>
-          <p><strong>Primapox - Todos os Direitos Reservados</strong></p>
-          <p>{contato.endereco} - {contato.cidade}</p>
-          <p>{contato.telefonePrincipal} - {contato.email}</p>
+          <p><strong>{rodape.direitos}</strong></p>
+          <p>{rodape.endereco}</p>
+          <p>{rodape.contato}</p>
         </div>
       </div>
     </footer>

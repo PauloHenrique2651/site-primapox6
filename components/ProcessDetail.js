@@ -1,27 +1,27 @@
-import { processo, destaque } from "@/lib/content";
+import { processo } from "@/lib/content";
 
 export default function ProcessDetail() {
   return (
-    <section id="servicos" className="section detail">
-      <div className="wrap">
-        <p className="eyebrow reveal">Serviços</p>
-        <h2 className="h2 reveal">{destaque.titulo}</h2>
-        <div className="detail-intro">
-          {destaque.paragrafos.map((p, i) => (
-            <p key={i} className="reveal">{p}</p>
-          ))}
-        </div>
-        <div className="detail-cols">
-          {processo.map((s) => (
-            <article key={s.n} className="detail-col reveal">
-              <span className="detail-n">{s.n}</span>
-              <h3>{s.nome}</h3>
-              {s.textos.map((t, i) => (
-                <p key={i}>{t}</p>
-              ))}
-            </article>
-          ))}
-        </div>
+    <section className="section detail">
+      <div className="wrap detail-cols">
+        {processo.map((s) => (
+          <article key={s.nome} className="detail-col reveal">
+            <h3>{s.nome}</h3>
+            {s.textos.map((t, i) => (
+              <p key={i}>{t}</p>
+            ))}
+            {s.antesDepois && (
+              <div className="antes-depois">
+                {s.antesDepois.map((f) => (
+                  <figure key={f.cap}>
+                    <img src={f.src} alt={f.cap} loading="lazy" decoding="async" />
+                    <figcaption>{f.cap}</figcaption>
+                  </figure>
+                ))}
+              </div>
+            )}
+          </article>
+        ))}
       </div>
     </section>
   );
