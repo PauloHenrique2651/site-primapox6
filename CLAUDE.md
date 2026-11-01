@@ -40,7 +40,5 @@ npm run build && npm start   # produção
 
 ## Pendências
 - O texto original diz "há mais de 20 anos" (Quem Somos) — mantido como está, por pedido do cliente.
-- Rodapé copiado do site antigo: "Praça 10, 42" e (21) 3172-2000; a página de contato diz "Praça Itapitanga 10"
-  e (21) 3448-7320. Os dois estão no site como no original — confirmar com o cliente qual vale.
 - Formulário de contato abre o e-mail (mailto). Para envio direto, criar `app/api/contato/route.js` com SMTP/Resend.
 - Versão vertical do vídeo (video/hero916) está pronta mas não foi renderizada: `cd video/hero916 && npx hyperframes render`.
